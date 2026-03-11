@@ -1,4 +1,4 @@
-(function(){
+javascript:(function(){
 var sharedStyle="position:fixed;width:48px;height:48px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:50%;z-index:2147483647;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:pointer;";
 var startOp=localStorage.getItem("midnight_opacity")!==null?localStorage.getItem("midnight_opacity")/100:1;
 if(!document.getElementById("midnight-kill-switch")){
