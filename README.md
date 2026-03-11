@@ -1,4 +1,3 @@
-
 javascript:(function(){
   const url = 'https://40ir.github.io/bookmark/bookmarklet/midnight.js?' + Date.now();
   fetch(url)
@@ -7,9 +6,11 @@ javascript:(function(){
       return r.text();
     })
     .then(js => {
-      console.log('✅ Midnight fetched successfully — running latest version');
-      new Function(js)();           // runs the code exactly as if it were a script
-      // alert('✅ Midnight bookmarklet loaded and executed!');
+      let code = js.trim();
+      if (code.startsWith('javascript:')) code = code.slice(11);   // ← this fixes your file
+      console.log('✅ Midnight fetched & cleaned — running latest version');
+      new Function(code)();
+      // alert('✅ Midnight bookmarklet is now running!');
     })
     .catch(err => {
       console.error('❌ Midnight fetch failed:', err);
