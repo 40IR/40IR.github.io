@@ -4,7 +4,7 @@
         return;
     }
     var script = document.createElement('script');
-    script.src = 'https://40IR/40IR.github.io/bookmarklet/midnight.js';
+    script.src = 'https://40IR.github.io/bookmarklet/midnight.js';
     script.onload = function() {
         if (window.midnightFactory) window.midnightFactory();
     };
