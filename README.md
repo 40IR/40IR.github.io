@@ -1,4 +1,4 @@
 # Usage:
-`` go to bookmarklet and open up midnight.js ``
+`` copy and paste this code into a bookmark:``
 
-https://40ir.github.io/bookmark/bookmarklet/midnight.js
+
