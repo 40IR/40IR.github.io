@@ -1,4 +1,5 @@
-# javascript:(function(){
+
+javascript:(function(){
   const url = 'https://40ir.github.io/bookmark/bookmarklet/midnight.js?' + Date.now();
   fetch(url)
     .then(r => {
