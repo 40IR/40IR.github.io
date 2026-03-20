@@ -6,6 +6,99 @@
   <title>Notes</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:system-ui,sans-serif; background:#000; color:#eee;
+      height:100vh; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; padding:20px;
+    }
+    form { width:100%; max-width:600px; display:flex; margin-bottom:20px; }
+    input {
+      flex:1; padding:16px 18px; font-size:1.25rem;
+      background:#111; border:1px solid #444; border-radius:999px 0 0 999px;
+      color:#fff; outline:none;
+    }
+    input:focus { border-color:#0066ff; }
+    button {
+      padding:0 28px; font-size:1.25rem;
+      background:#0066ff; color:white; border:none;
+      border-radius:0 999px 999px 0; cursor:pointer;
+    }
+    #settings { margin:16px 0; text-align:center; }
+    #settings select {
+      padding:10px 14px; background:#111; color:#eee;
+      border:1px solid #444; border-radius:8px; font-size:1rem;
+    }
+    #status { margin-top:20px; color:#888; font-size:1.1rem; }
+  </style>
+</head>
+<body>
+
+  <form id="frm">
+    <input id="inp" type="text" placeholder="Search or enter URL" autocomplete="off" autofocus>
+    <button type="submit">→</button>
+  </form>
+
+  <div id="settings">
+    <label>Engine: </label>
+    <select id="engine">
+      <option value="bing" selected>Bing</option>
+      <option value="ddg-lite">DDG Lite</option>
+      <option value="startpage">Startpage</option>
+      <option value="google">Google</option>
+    </select>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    const frm = document.getElementById('frm');
+    const inp = document.getElementById('inp');
+    const status = document.getElementById('status');
+    const engineSelect = document.getElementById('engine');
+
+    const engines = {
+      'ddg-lite': 'https://html.duckduckgo.com/html/?q=',
+      'bing': 'https://www.bing.com/search?q=',
+      'startpage': 'https://www.startpage.com/sp/search?query=',
+      'google': 'https://www.google.com/search?q='
+    };
+
+    let currentEngine = 'bing';
+
+    engineSelect.addEventListener('change', () => currentEngine = engineSelect.value);
+
+    frm.addEventListener('submit', e => {
+      e.preventDefault();
+      let v = inp.value.trim();
+      if (!v) return;
+
+      let url;
+      if (!v.includes(' ') && v.includes('.')) {
+        url = v.startsWith('http') ? v : 'https://' + v;
+      } else {
+        url = engines[currentEngine] + encodeURIComponent(v);
+      }
+
+      status.textContent = 'Opening...';
+      const win = window.open(url, '_blank');
+      if (win) {
+        status.textContent = 'Opened in new tab';
+      } else {
+        status.textContent = 'Popup blocked — redirecting...';
+        setTimeout(() => { location.href = url; }, 1000);
+      }
+      inp.blur();
+    });
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Notes</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
       height: 100%;
       overflow: hidden;
