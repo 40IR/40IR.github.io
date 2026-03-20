@@ -6,22 +6,26 @@
   <title>Notes</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
+    html, body {
+      height: 100%;
+      overflow: hidden;
       font-family: system-ui, sans-serif;
       background: #000;
       color: #eee;
-      height: 100vh;
-      overflow: hidden;
+    }
+    #container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     #top-nav {
-      position: absolute;
-      top: 0; left: 0; right: 0;
       height: 52px;
       background: #111;
       border-bottom: 1px solid #333;
       display: flex;
       align-items: center;
       padding: 0 10px;
+      flex-shrink: 0;
       z-index: 20;
       display: none;
     }
@@ -39,6 +43,11 @@
       background: #222; border: 1px solid #444;
       border-radius: 999px; color: #eee;
       outline: none;
+    }
+    #nav-search:focus { border-color: #0066ff; }
+    #content {
+      flex: 1;
+      position: relative;
     }
     #ui {
       position: absolute; inset: 0; z-index: 10;
@@ -79,57 +88,69 @@
       text-align: left; display: none;
       margin-top: 16px;
     }
-    #settings-panel label {
-      display: block; margin-bottom: 8px; color: #ccc;
-    }
+    #settings-panel label { display:block; margin-bottom:8px; color:#ccc; }
     #settings-panel select {
-      width: 100%; padding: 8px;
-      background: #222; color: #eee;
-      border: 1px solid #555; border-radius: 6px;
+      width:100%; padding:8px; background:#222; color:#eee;
+      border:1px solid #555; border-radius:6px;
     }
     #status {
-      margin-top: 16px; color: #888; font-size: 1rem;
-      text-align: center;
+      margin-top:16px; color:#888; font-size:1rem; text-align:center;
     }
     iframe {
-      width: 100%; height: 100%; border: none;
-      background: white; display: none;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 500px) {
-      #top-nav { height: 48px; padding: 0 8px; }
-      .nav-btn { width: 40px; height: 40px; margin: 0 4px; }
-      #nav-search { font-size: 0.95rem; padding: 8px 12px; margin: 0 8px; }
-      input, button { font-size: 1.1rem; padding: 12px 14px; }
-      form { margin-bottom: 16px; }
+      width:100%; height:100%; border:none;
+      background:white; display:none;
     }
   </style>
 </head>
 <body>
 
-  <div id="top-nav">
-    <button class="nav-btn" id="btn-back" disabled>
-      <svg viewBox="0 0 24 24" width="24" height="24">
-        <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <button class="nav-btn" id="btn-forward" disabled>
-      <svg viewBox="0 0 24 24" width="24" height="24">
-        <path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <button class="nav-btn" id="btn-refresh">
-      <svg viewBox="0 0 24 24" width="24" height="24">
-        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64-4.36A9 9 0 0 1 20.49 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <input type="text" id="nav-search" placeholder="Search or enter URL">
-    <button class="nav-btn" id="btn-close">
-      <svg viewBox="0 0 24 24" width="24" height="24">
-        <path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
+  <div id="container">
+    <div id="top-nav">
+      <button class="nav-btn" id="btn-back" disabled>
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="btn-forward" disabled>
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="btn-refresh">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64-4.36A9 9 0 0 1 20.49 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <input type="text" id="nav-search" placeholder="Search or enter URL">
+      <button class="nav-btn" id="btn-close">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="content">
+      <div id="ui">
+        <form id="frm">
+          <input id="inp" type="text" placeholder="Search or enter URL" autocomplete="off" autofocus>
+          <button type="submit">→</button>
+        </form>
+
+        <div id="settings-panel">
+          <label>Search engine</label>
+          <select id="engine">
+            <option value="bing" selected>Bing</option>
+            <option value="ddg-lite">DuckDuckGo Lite</option>
+            <option value="startpage">Startpage</option>
+            <option value="google">Google</option>
+          </select>
+        </div>
+
+        <div id="status"></div>
+      </div>
+
+      <iframe id="frme" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-top-navigation allow-storage-access-by-user-activation"></iframe>
+    </div>
   </div>
 
   <div id="top-right">
@@ -138,27 +159,6 @@
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
   </div>
-
-  <div id="ui">
-    <form id="frm">
-      <input id="inp" type="text" placeholder="Search or enter URL" autocomplete="off" autofocus>
-      <button type="submit">→</button>
-    </form>
-
-    <div id="settings-panel">
-      <label>Search engine</label>
-      <select id="engine">
-        <option value="bing" selected>Bing</option>
-        <option value="ddg-lite">DuckDuckGo Lite</option>
-        <option value="startpage">Startpage</option>
-        <option value="google">Google</option>
-      </select>
-    </div>
-
-    <div id="status"></div>
-  </div>
-
-  <iframe id="frme" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-top-navigation allow-storage-access-by-user-activation"></iframe>
 
   <script>
     const ui = document.getElementById('ui');
