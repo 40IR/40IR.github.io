@@ -4,24 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>⇄</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family:system-ui,sans-serif;
-      background:#0a0a0a;
-      color:#e0e0e0;
+      background:#000;
+      color:#eee;
       height:100vh;
       overflow:hidden;
     }
     #top {
-      height:50px;
-      background:#111111;
+      height:48px;
+      background:#111;
       border-bottom:1px solid #222;
       display:flex;
       align-items:center;
-      padding:0 12px;
-      gap:8px;
+      padding:0 10px;
+      gap:6px;
       flex-shrink:0;
       display:none;
     }
@@ -31,23 +30,23 @@
       color:#aaa; font-size:18px;
       cursor:pointer; display:flex;
       align-items:center; justify-content:center;
-      border-radius:6px;
+      border-radius:4px;
     }
     .btn:hover { background:#222; color:#fff; }
-    .btn:disabled { opacity:0.35; cursor:not-allowed; }
+    .btn:disabled { opacity:0.4; cursor:not-allowed; }
     #urlbar {
       flex:1;
-      height:36px;
-      padding:0 14px;
-      font-size:15px;
+      height:34px;
+      padding:0 12px;
+      font-size:14px;
       background:#1a1a1a;
       border:1px solid #333;
-      border-radius:6px;
+      border-radius:4px;
       color:#eee;
       outline:none;
     }
     #urlbar:focus { border-color:#1e90ff; }
-    #content {
+    #main {
       flex:1;
       position:relative;
     }
@@ -56,22 +55,21 @@
       display:flex; flex-direction:column;
       justify-content:center; align-items:center;
       padding:20px;
-      background:#000;
     }
     #start.hidden { display:none; }
     #input-form {
-      width:100%; max-width:620px;
+      width:100%; max-width:600px;
       display:flex; margin-bottom:20px;
     }
     #input {
-      flex:1; padding:16px 18px; font-size:1.15rem;
+      flex:1; padding:14px 16px; font-size:1.1rem;
       background:#111; border:1px solid #333;
       border-radius:8px 0 0 8px; color:#fff;
       outline:none;
     }
     #input:focus { border-color:#1e90ff; }
     #go {
-      padding:0 28px; font-size:1.15rem;
+      padding:0 24px; font-size:1.1rem;
       background:#1e90ff; color:white; border:none;
       border-radius:0 8px 8px 0; cursor:pointer;
     }
@@ -93,15 +91,15 @@
 <body>
 
 <div id="top">
-  <button class="btn" id="back" disabled title="Back">←</button>
-  <button class="btn" id="forward" disabled title="Forward">→</button>
-  <button class="btn" id="refresh" title="Refresh">↻</button>
+  <button class="btn" id="back" disabled>←</button>
+  <button class="btn" id="forward" disabled>→</button>
+  <button class="btn" id="refresh">↻</button>
   <input type="text" id="urlbar" placeholder="URL or search">
-  <button class="btn" id="home" title="Home">⌂</button>
-  <button class="btn" id="newtab" title="New tab">⊞</button>
+  <button class="btn" id="home">⌂</button>
+  <button class="btn" id="newtab">⊞</button>
 </div>
 
-<div id="content">
+<div id="main">
   <div id="start">
     <form id="input-form">
       <input id="input" type="text" placeholder="URL or search" autocomplete="off" autofocus>
@@ -154,7 +152,7 @@ function load(url) {
   start.classList.add('hidden');
   topbar.style.display = 'flex';
   urlbar.value = url;
-  document.title = '⇄ ' + new URL(url).hostname;
+  document.title = '⇄ ' + (new URL(url).hostname || 'Loading');
   input.blur();
 }
 
@@ -213,11 +211,9 @@ frame.addEventListener('load', () => {
   } catch {}
 });
 
-// Panic / clear (Esc)
+// Panic key (Esc)
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    showHome();
-  }
+  if (e.key === 'Escape') showHome();
 });
 </script>
 </body>
