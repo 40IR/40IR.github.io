@@ -4,24 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>⇄</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: system-ui, sans-serif;
-      background:#0d0d0d;
+      font-family:system-ui,sans-serif;
+      background:#0a0a0a;
       color:#e0e0e0;
       height:100vh;
       overflow:hidden;
     }
     #top {
-      height:48px;
-      background:#111;
+      height:50px;
+      background:#111111;
       border-bottom:1px solid #222;
       display:flex;
       align-items:center;
-      padding:0 8px;
-      gap:6px;
+      padding:0 12px;
+      gap:8px;
       flex-shrink:0;
+      display:none;
     }
     .btn {
       width:40px; height:40px;
@@ -32,7 +34,7 @@
       border-radius:6px;
     }
     .btn:hover { background:#222; color:#fff; }
-    .btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn:disabled { opacity:0.35; cursor:not-allowed; }
     #urlbar {
       flex:1;
       height:36px;
@@ -44,8 +46,8 @@
       color:#eee;
       outline:none;
     }
-    #urlbar:focus { border-color:#0066ff; }
-    #main {
+    #urlbar:focus { border-color:#1e90ff; }
+    #content {
       flex:1;
       position:relative;
     }
@@ -59,7 +61,7 @@
     #start.hidden { display:none; }
     #input-form {
       width:100%; max-width:620px;
-      display:flex; margin-bottom:24px;
+      display:flex; margin-bottom:20px;
     }
     #input {
       flex:1; padding:16px 18px; font-size:1.15rem;
@@ -67,20 +69,20 @@
       border-radius:8px 0 0 8px; color:#fff;
       outline:none;
     }
-    #input:focus { border-color:#0066ff; }
-    #go-btn {
+    #input:focus { border-color:#1e90ff; }
+    #go {
       padding:0 28px; font-size:1.15rem;
-      background:#0066ff; color:white; border:none;
+      background:#1e90ff; color:white; border:none;
       border-radius:0 8px 8px 0; cursor:pointer;
     }
-    #engine-select {
-      margin-top:12px; padding:10px 14px;
+    #engine {
+      padding:10px 14px;
       background:#111; color:#eee;
       border:1px solid #333; border-radius:6px;
       font-size:1rem;
     }
     #status {
-      margin-top:20px; color:#777; font-size:0.95rem;
+      margin-top:16px; color:#777; font-size:0.95rem;
     }
     iframe {
       width:100%; height:100%; border:none;
@@ -94,20 +96,21 @@
   <button class="btn" id="back" disabled title="Back">←</button>
   <button class="btn" id="forward" disabled title="Forward">→</button>
   <button class="btn" id="refresh" title="Refresh">↻</button>
-  <input type="text" id="urlbar" placeholder="Enter URL or search">
+  <input type="text" id="urlbar" placeholder="URL or search">
+  <button class="btn" id="home" title="Home">⌂</button>
   <button class="btn" id="newtab" title="New tab">⊞</button>
 </div>
 
-<div id="main">
+<div id="content">
   <div id="start">
     <form id="input-form">
       <input id="input" type="text" placeholder="URL or search" autocomplete="off" autofocus>
-      <button id="go-btn">Go</button>
+      <button id="go">Go</button>
     </form>
 
-    <select id="engine-select">
+    <select id="engine">
       <option value="bing" selected>Bing</option>
-      <option value="ddglite">DuckDuckGo Lite</option>
+      <option value="ddglite">DDG Lite</option>
       <option value="startpage">Startpage</option>
       <option value="google">Google</option>
     </select>
@@ -126,11 +129,12 @@ const urlbar = document.getElementById('urlbar');
 const backBtn = document.getElementById('back');
 const fwdBtn = document.getElementById('forward');
 const refBtn = document.getElementById('refresh');
+const homeBtn = document.getElementById('home');
 const newtabBtn = document.getElementById('newtab');
 const input = document.getElementById('input');
-const goBtn = document.getElementById('go-btn');
+const goBtn = document.getElementById('go');
 const status = document.getElementById('status');
-const engine = document.getElementById('engine-select');
+const engine = document.getElementById('engine');
 
 const engines = {
   bing: 'https://www.bing.com/search?q=',
@@ -150,6 +154,7 @@ function load(url) {
   start.classList.add('hidden');
   topbar.style.display = 'flex';
   urlbar.value = url;
+  document.title = '⇄ ' + new URL(url).hostname;
   input.blur();
 }
 
@@ -159,7 +164,9 @@ function showHome() {
   start.classList.remove('hidden');
   topbar.style.display = 'none';
   status.textContent = '';
+  document.title = '⇄';
   input.focus();
+  input.select();
 }
 
 document.getElementById('input-form').addEventListener('submit', e => {
@@ -183,6 +190,7 @@ goBtn.addEventListener('click', () => document.getElementById('input-form').disp
 backBtn.addEventListener('click', () => { try { frame.contentWindow.history.back(); } catch {} });
 fwdBtn.addEventListener('click', () => { try { frame.contentWindow.history.forward(); } catch {} });
 refBtn.addEventListener('click', () => { try { frame.contentWindow.location.reload(); } catch {} });
+homeBtn.addEventListener('click', showHome);
 newtabBtn.addEventListener('click', () => {
   const u = urlbar.value.trim();
   if (u) window.open(u, '_blank');
@@ -200,10 +208,15 @@ frame.addEventListener('load', () => {
   status.textContent = '';
   try {
     backBtn.disabled = frame.contentWindow.history.length === 0;
-    fwdBtn.disabled = true; // simplistic
+    fwdBtn.disabled = true;
     urlbar.value = frame.contentWindow.location.href;
-  } catch {
-    // cross-origin → blocked
+  } catch {}
+});
+
+// Panic / clear (Esc)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    showHome();
   }
 });
 </script>
