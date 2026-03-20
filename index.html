@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Notes</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #eee;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #top-nav {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: #111;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      z-index: 20;
+      display: none;
+    }
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      margin: 0 4px;
+      stroke: #aaa;
+      transition: stroke 0.2s;
+    }
+    .nav-btn:hover { stroke: #eee; }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    #nav-search {
+      flex: 1;
+      margin: 0 12px;
+      padding: 10px 16px;
+      font-size: 1.05rem;
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 999px;
+      color: #eee;
+      outline: none;
+    }
+    #nav-search:focus { border-color: #0066ff; }
+    #ui {
+      position: absolute; inset: 0; z-index: 10;
+      background: rgba(0,0,0,0.96);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      transition: opacity 0.4s;
+    }
+    #ui.hidden { opacity: 0; pointer-events: none; }
+    #top-right {
+      position: absolute; top: 12px; right: 16px; z-index: 15;
+    }
+    #cog {
+      width: 32px; height: 32px; cursor: pointer;
+      transition: stroke 0.2s;
+      stroke: #888; stroke-width: 2.2; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    #cog:hover { stroke: #aaa; }
+    form {
+      width: 92%; max-width: 760px; display: flex;
+      margin-bottom: 1.4rem;
+    }
+    input {
+      flex: 1; padding: 1.3rem 1.6rem; font-size: 1.4rem;
+      background: #111; border: 1px solid #444;
+      border-radius: 999px 0 0 999px; color: #fff;
+      outline: none;
+    }
+    input::placeholder { color: #777; }
+    input:focus { border-color: #0066ff; box-shadow: 0 0 0 4px rgba(0,102,255,0.2); }
+    button {
+      padding: 0 2.6rem; font-size: 1.4rem;
+      background: #0066ff; color: white; border: none;
+      border-radius: 0 999px 999px 0; cursor: pointer;
+    }
+    button:active { background: #0055dd; }
+    #settings-panel {
+      background: #111; border: 1px solid #444;
+      border-radius: 12px; padding: 1.2rem;
+      margin-top: 1.2rem; width: 92%; max-width: 340px;
+      text-align: left; display: none;
+    }
+    #settings-panel label {
+      display: block; margin-bottom: 0.6rem; color: #ccc; font-size: 1.05rem;
+    }
+    #settings-panel select {
+      width: 100%; padding: 0.7rem; background: #222;
+      color: #eee; border: 1px solid #555; border-radius: 8px;
+      font-size: 1.05rem;
+    }
+    #status {
+      margin-top: 1.4rem; color: #888; font-size: 1.05rem;
+      text-align: center; max-width: 90%;
+    }
+    iframe {
+      width: 100%; height: 100%; border: none;
+      background: white; display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="top-nav">
+    <button class="nav-btn" id="btn-back" disabled>
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="nav-btn" id="btn-forward" disabled>
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="nav-btn" id="btn-refresh">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64-4.36A9 9 0 0 1 20.49 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <input type="text" id="nav-search" placeholder="Search or enter URL">
+    <button class="nav-btn" id="btn-close">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="top-right">
+    <svg id="cog" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </div>
+
+  <div id="ui">
+    <form id="frm">
+      <input id="inp" type="text" placeholder="Search or enter URL" autocomplete="off" autofocus>
+      <button type="submit">→</button>
+    </form>
+
+    <div id="settings-panel">
+      <label>Search engine</label>
+      <select id="engine">
+        <option value="bing" selected>Bing</option>
+        <option value="ddg-lite">DuckDuckGo Lite</option>
+        <option value="startpage">Startpage</option>
+        <option value="google">Google</option>
+      </select>
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <iframe id="frme" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-top-navigation allow-storage-access-by-user-activation"></iframe>
+
+  <script>
+    const ui = document.getElementById('ui');
+    const frme = document.getElementById('frme');
+    const frm = document.getElementById('frm');
+    const inp = document.getElementById('inp');
+    const status = document.getElementById('status');
+    const cog = document.getElementById('cog');
+    const settingsPanel = document.getElementById('settings-panel');
+    const engineSelect = document.getElementById('engine');
+    const topNav = document.getElementById('top-nav');
+    const btnBack = document.getElementById('btn-back');
+    const btnForward = document.getElementById('btn-forward');
+    const btnRefresh = document.getElementById('btn-refresh');
+    const btnClose = document.getElementById('btn-close');
+    const navSearch = document.getElementById('nav-search');
+
+    const engines = {
+      'ddg-lite': 'https://html.duckduckgo.com/html/?q=',
+      'bing': 'https://www.bing.com/search?q=',
+      'startpage': 'https://www.startpage.com/sp/search?query=',
+      'google': 'https://www.google.com/search?q='
+    };
+
+    let currentEngine = 'bing';
+
+    engineSelect.addEventListener('change', () => currentEngine = engineSelect.value);
+
+    cog.addEventListener('click', () => {
+      settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
+    });
+
+    function setStatus(txt = '', err = false) {
+      status.textContent = txt;
+      status.style.color = err ? '#ff6666' : '#888';
+    }
+
+    function go(url) {
+      setStatus('Loading...');
+      frme.src = url;
+      frme.style.display = 'block';
+      ui.classList.add('hidden');
+      topNav.style.display = 'flex';
+      settingsPanel.style.display = 'none';
+      inp.blur();
+      navSearch.value = '';
+    }
+
+    function backToInput() {
+      frme.style.display = 'none';
+      frme.src = 'about:blank';
+      ui.classList.remove('hidden');
+      topNav.style.display = 'none';
+      setStatus('');
+      inp.focus();
+      inp.select();
+    }
+
+    frm.addEventListener('submit', e => {
+      e.preventDefault();
+      let v = inp.value.trim();
+      if (!v) return;
+
+      let url;
+      if (!v.includes(' ') && v.includes('.')) {
+        url = v.startsWith('http') ? v : 'https://' + v;
+      } else {
+        url = engines[currentEngine] + encodeURIComponent(v);
+      }
+
+      go(url);
+    });
+
+    // Top nav actions
+    btnBack.addEventListener('click', () => { try { frme.contentWindow.history.back(); } catch {} });
+    btnForward.addEventListener('click', () => { try { frme.contentWindow.history.forward(); } catch {} });
+    btnRefresh.addEventListener('click', () => { try { frme.contentWindow.location.reload(); } catch {} });
+    btnClose.addEventListener('click', backToInput);
+
+    navSearch.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        let v = navSearch.value.trim();
+        if (!v) return;
+        let url;
+        if (!v.includes(' ') && v.includes('.')) {
+          url = v.startsWith('http') ? v : 'https://' + v;
+        } else {
+          url = engines[currentEngine] + encodeURIComponent(v);
+        }
+        go(url);
+      }
+    });
+
+    // Exit shortcuts
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') backToInput();
+    });
+
+    document.addEventListener('click', e => {
+      if (frme.style.display === 'block' && !frme.contains(e.target) && !ui.contains(e.target) && !topNav.contains(e.target)) {
+        backToInput();
+      }
+    });
+
+    frme.addEventListener('load', () => {
+      setStatus('');
+      try {
+        btnBack.disabled = !frme.contentWindow.history.length;
+      } catch {}
+    });
+  </script>
+</body>
+</html>
